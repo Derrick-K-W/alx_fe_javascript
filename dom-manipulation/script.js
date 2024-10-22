@@ -113,35 +113,41 @@ let quotes = [
   }
   
   // Fetch quotes from the server (mocking a server response)
-  function fetchQuotesFromServer() {
-    return fetch('https://jsonplaceholder.typicode.com/posts')
-      .then(response => response.json())
-      .then(serverData => {
-        const serverQuotes = serverData.slice(0, 5).map(item => ({
-          text: item.title,
-          category: "Server"
-        }));
-        return serverQuotes; // Return fetched quotes
-      });
+  async function fetchQuotesFromServer() {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+      const serverData = await response.json();
+  
+      // Map the server data to the quote format
+      const serverQuotes = serverData.slice(0, 5).map(item => ({
+        text: item.title,
+        category: "Server"
+      }));
+  
+      return serverQuotes; // Return fetched quotes
+    } catch (error) {
+      console.error('Error fetching quotes from server:', error);
+      return [];
+    }
   }
   
   // Sync with the server (using the fetched server data)
-  function syncWithServer() {
+  async function syncWithServer() {
     const syncStatus = document.getElementById('syncStatus');
     syncStatus.textContent = 'Syncing...';
   
-    fetchQuotesFromServer()
-      .then(serverQuotes => {
-        // Merge server quotes with local quotes, prioritizing server data in case of conflict
-        quotes = [...serverQuotes, ...quotes.filter(q => !serverQuotes.some(sq => sq.text === q.text))];
-        saveQuotes(); // Save merged quotes to local storage
-        syncStatus.textContent = 'Sync complete. Server data has been merged with local data.';
-        populateCategories(); // Refresh categories
-        filterQuotes(); // Display updated quotes
-      })
-      .catch(() => {
-        syncStatus.textContent = 'Sync failed. Please try again later.';
-      });
+    try {
+      const serverQuotes = await fetchQuotesFromServer();
+  
+      // Merge server quotes with local quotes, prioritizing server data in case of conflict
+      quotes = [...serverQuotes, ...quotes.filter(q => !serverQuotes.some(sq => sq.text === q.text))];
+      saveQuotes(); // Save merged quotes to local storage
+      syncStatus.textContent = 'Sync complete. Server data has been merged with local data.';
+      populateCategories(); // Refresh categories
+      filterQuotes(); // Display updated quotes
+    } catch (error) {
+      syncStatus.textContent = 'Sync failed. Please try again later.';
+    }
   }
   
   // Initialize the app on page load
