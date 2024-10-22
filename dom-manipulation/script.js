@@ -112,6 +112,35 @@ let quotes = [
     fileReader.readAsText(event.target.files[0]);
   }
   
+  // Sync with the server (using JSONPlaceholder for simulation)
+  function syncWithServer() {
+    const syncStatus = document.getElementById('syncStatus');
+    syncStatus.textContent = 'Syncing...';
+  
+    // Simulate fetching data from the server
+    fetch('https://jsonplaceholder.typicode.com/posts')
+      .then(response => response.json())
+      .then(serverData => {
+        // Simulate resolving conflicts by using server data as the source of truth
+        const serverQuotes = serverData.slice(0, 5).map(item => ({
+          text: item.title,
+          category: "Server"
+        }));
+  
+        // Combine server and local quotes, prioritizing server data in case of conflict
+        quotes = [...serverQuotes, ...quotes.filter(q => !serverQuotes.some(sq => sq.text === q.text))];
+        saveQuotes(); // Update local storage with the merged data
+  
+        // Notify the user of the sync completion
+        syncStatus.textContent = 'Sync complete. Server data has been merged with local data.';
+        populateCategories(); // Refresh categories
+        filterQuotes(); // Display updated quotes
+      })
+      .catch(() => {
+        syncStatus.textContent = 'Sync failed. Please try again later.';
+      });
+  }
+  
   // Initialize the app on page load
   document.getElementById('newQuote').addEventListener('click', showRandomQuote);
   document.getElementById('addQuoteButton').addEventListener('click', addQuote);
