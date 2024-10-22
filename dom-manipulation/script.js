@@ -67,4 +67,63 @@ let quotes = [
   
   // Display a random quote when the page loads
   showRandomQuote();
+
+  // Load quotes from local storage if available
+function loadQuotes() {
+    const storedQuotes = localStorage.getItem('quotes');
+    if (storedQuotes) {
+      quotes = JSON.parse(storedQuotes);
+    }
+  }
+  
+  // Save quotes to local storage
+  function saveQuotes() {
+    localStorage.setItem('quotes', JSON.stringify(quotes));
+  }
+  
+  // Update the addQuote function to save to local storage
+  function addQuote() {
+    const newQuoteText = document.getElementById('newQuoteText').value;
+    const newQuoteCategory = document.getElementById('newQuoteCategory').value;
+  
+    if (newQuoteText && newQuoteCategory) {
+      const newQuote = { text: newQuoteText, category: newQuoteCategory };
+      quotes.push(newQuote);
+      saveQuotes();  // Save quotes to local storage
+      alert('New quote added!');
+      
+      // Clear input fields
+      document.getElementById('newQuoteText').value = '';
+      document.getElementById('newQuoteCategory').value = '';
+    } else {
+      alert('Please enter both quote text and category.');
+    }
+  }
+
+  // Function to export quotes as a JSON file
+function exportToJsonFile() {
+    const dataStr = JSON.stringify(quotes, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = 'quotes.json';
+    downloadLink.click();
+  }
+
+  // Function to import quotes from a JSON file
+function importFromJsonFile(event) {
+    const fileReader = new FileReader();
+    fileReader.onload = function(event) {
+      const importedQuotes = JSON.parse(event.target.result);
+      quotes.push(...importedQuotes);
+      saveQuotes();  // Save updated quotes to local storage
+      alert('Quotes imported successfully!');
+    };
+    fileReader.readAsText(event.target.files[0]);
+  }
+  
+  // Add an event listener to the input field for file import
+  document.getElementById('importFile').addEventListener('change', importFromJsonFile);
   
