@@ -174,6 +174,11 @@ let quotes = [
     }
   }
   
+  // Sync quotes with the server periodically
+  async function syncQuotes() {
+    await syncWithServer();
+  }
+  
   // Initialize the app on page load
   document.getElementById('newQuote').addEventListener('click', showRandomQuote);
   document.getElementById('addQuoteButton').addEventListener('click', addQuote);
@@ -183,4 +188,7 @@ let quotes = [
   loadQuotes();
   populateCategories();
   showRandomQuote();
+  
+  // Set an interval to sync quotes every 30 seconds
+  setInterval(syncQuotes, 30000);
   
