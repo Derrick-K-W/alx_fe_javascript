@@ -84,6 +84,9 @@ let quotes = [
   
       // Update the categories dropdown
       populateCategories();
+  
+      // Sync the new quote with the server
+      syncNewQuoteWithServer(newQuote);
     } else {
       alert('Please enter both quote text and category.');
     }
@@ -147,6 +150,27 @@ let quotes = [
       filterQuotes(); // Display updated quotes
     } catch (error) {
       syncStatus.textContent = 'Sync failed. Please try again later.';
+    }
+  }
+  
+  // POST new quote to server
+  async function syncNewQuoteWithServer(newQuote) {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newQuote)
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to sync with server');
+      }
+  
+      console.log('Quote successfully synced with server');
+    } catch (error) {
+      console.error('Error syncing new quote with server:', error);
     }
   }
   
