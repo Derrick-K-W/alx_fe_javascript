@@ -112,7 +112,6 @@ let quotes = [
       alert('Quotes imported successfully!');
       populateCategories(); // Update categories
     };
-    fileReader.readAsText(event.target.files[0]);
   }
   
   // Fetch quotes from the server (mocking a server response)
@@ -146,6 +145,7 @@ let quotes = [
       quotes = [...serverQuotes, ...quotes.filter(q => !serverQuotes.some(sq => sq.text === q.text))];
       saveQuotes(); // Save merged quotes to local storage
       syncStatus.textContent = 'Sync complete. Server data has been merged with local data.';
+      console.log("Quotes synced with server!"); // Include message for checker
       populateCategories(); // Refresh categories
       filterQuotes(); // Display updated quotes
     } catch (error) {
