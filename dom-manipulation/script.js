@@ -112,26 +112,29 @@ let quotes = [
     fileReader.readAsText(event.target.files[0]);
   }
   
-  // Sync with the server (using JSONPlaceholder for simulation)
-  function syncWithServer() {
-    const syncStatus = document.getElementById('syncStatus');
-    syncStatus.textContent = 'Syncing...';
-  
-    // Simulate fetching data from the server
-    fetch('https://jsonplaceholder.typicode.com/posts')
+  // Fetch quotes from the server (mocking a server response)
+  function fetchQuotesFromServer() {
+    return fetch('https://jsonplaceholder.typicode.com/posts')
       .then(response => response.json())
       .then(serverData => {
-        // Simulate resolving conflicts by using server data as the source of truth
         const serverQuotes = serverData.slice(0, 5).map(item => ({
           text: item.title,
           category: "Server"
         }));
+        return serverQuotes; // Return fetched quotes
+      });
+  }
   
-        // Combine server and local quotes, prioritizing server data in case of conflict
+  // Sync with the server (using the fetched server data)
+  function syncWithServer() {
+    const syncStatus = document.getElementById('syncStatus');
+    syncStatus.textContent = 'Syncing...';
+  
+    fetchQuotesFromServer()
+      .then(serverQuotes => {
+        // Merge server quotes with local quotes, prioritizing server data in case of conflict
         quotes = [...serverQuotes, ...quotes.filter(q => !serverQuotes.some(sq => sq.text === q.text))];
-        saveQuotes(); // Update local storage with the merged data
-  
-        // Notify the user of the sync completion
+        saveQuotes(); // Save merged quotes to local storage
         syncStatus.textContent = 'Sync complete. Server data has been merged with local data.';
         populateCategories(); // Refresh categories
         filterQuotes(); // Display updated quotes
